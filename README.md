@@ -2,22 +2,22 @@
 
 
 ## Aim
+To identify a real-world smart irrigation problem and represent it as a Markov Decision Process (MDP) by defining its states, actions, transition probabilities, reward function, and discount factor using Python. The aim is to understand how Artificial Intelligence and Reinforcement Learning can optimize water usage, maintain soil moisture, and improve crop growth.
 
-Write your aim here.
-
-Example:
-
-> To identify a real-world sequential decision-making problem and represent it formally as a Markov Decision Process by defining its states, actions, rewards, transitions, and Python representation.
-
----
 
 ## Problem Statement
 
 ### Problem Description
 
-Write your answer here.
+Farmers often face difficulties in deciding when and how much water to supply to crops. Excessive irrigation wastes water and may damage crops, while insufficient irrigation causes the soil to become dry and affects plant growth.
 
-Describe the real-world application that you selected.
+An AI-based Smart Irrigation System monitors soil moisture and selects suitable irrigation actions. Depending on the current soil condition, the intelligent agent can keep the water supply off, provide a small amount of water, or provide a large amount of water.
+
+After an action is performed, the soil moisture may change according to the transition probabilities. The agent receives rewards or penalties based on the resulting soil condition and the amount of water used.
+
+By applying Reinforcement Learning, the system can learn a suitable irrigation strategy to maintain healthy soil moisture, reduce water wastage, and improve crop growth.
+
+Note: The transition probabilities and rewards in this experiment are illustrative assumptions, not measurements from an actual farm.
 
 
 ---
@@ -34,34 +34,48 @@ Where:
 
 | Symbol | Meaning |
 |---|---|
-| $S$ | Set of states |
-| $A$ | Set of actions |
+| $S$ | Set of soil moisture states |
+| $A$ | Set of irrigation actions |
 | $P$ | Transition probability function |
 | $R$ | Reward function |
 | $\gamma$ | Discount factor |
+
+States: Dry, Moderate, and Wet.
+Actions: No Water, Small Irrigation, and Large Irrigation.
+Transition probabilities: Probability of reaching a particular soil condition after an irrigation action.
+Reward function: Rewards healthy soil moisture and penalizes excessive water usage or dry soil.
+Discount factor: \(\gamma=0.90\), which gives importance to future rewards as well as immediate rewards.
 
 ---
 
 ## State Space
 
-Write your answer here.
 
-The state space should list all possible situations in which the agent can exist.
 
-Example format:
+The state space represents all possible soil moisture conditions.
 
-```text
+```
 S = {
-    State 1,
-    State 2,
-    State 3,
+    Dry,
+    Moderate,
+    Wet,
     ...
 }
+
 ```
+```
+states = {
+    "Dry": "Soil moisture below 30%",
+    "Moderate": "Soil moisture between 30% and 60%",
+    "Wet": "Soil moisture above 60%"
+}
 
 
-
----
+```
+The states are explained below:
+1. Dry: The soil has insufficient moisture, and crops may require irrigation.
+2. Moderate: The soil has a suitable moisture level for crop growth.
+3. Wet: The soil has high moisture, and additional irrigation may cause water wastage.
 
 ## Sample State
 
