@@ -119,22 +119,28 @@ This means:
 
 > Probability of reaching next state $s'$ after taking action $a$ in current state $s$.
 
-Current State	Action	Next Dry	Next Moderate	Next Wet
-Dry	No Water	0.90	0.10	0.00
-Dry	Small Irrigation	0.30	0.65	0.05
-Dry	Large Irrigation	0.05	0.35	0.60
-Moderate	No Water	0.30	0.65	0.05
-Moderate	Small Irrigation	0.10	0.70	0.20
-Moderate	Large Irrigation	0.05	0.35	0.60
-Wet	No Water	0.10	0.80	0.10
-Wet	Small Irrigation	0.05	0.60	0.35
-Wet	Large Irrigation	0.00	0.20	0.80
+The following transition probabilities are illustrative.
 
+| Current State | Action | Next Dry | Next Moderate | Next Wet |
+|---|---|---:|---:|---:|
+| Dry | No Water | 0.90 | 0.10 | 0.00 |
+| Dry | Small Irrigation | 0.30 | 0.65 | 0.05 |
+| Dry | Large Irrigation | 0.05 | 0.35 | 0.60 |
+| Moderate | No Water | 0.30 | 0.65 | 0.05 |
+| Moderate | Small Irrigation | 0.10 | 0.70 | 0.20 |
+| Moderate | Large Irrigation | 0.05 | 0.35 | 0.60 |
+| Wet | No Water | 0.10 | 0.80 | 0.10 |
+| Wet | Small Irrigation | 0.05 | 0.60 | 0.35 |
+| Wet | Large Irrigation | 0.00 | 0.20 | 0.80 |
+
+Each row sums to 1.0, representing all possible next soil moisture states for that state-action pair.
+
+Example: If the current state is Dry and the agent selects Small Irrigation, there is a 30% probability of remaining Dry, a 65% probability of reaching Moderate, and a 5% probability of reaching Wet.
 
 
 ## Reward Function
 
-Write your answer here.
+
 
 The reward function defines the feedback received by the agent after taking an action.
 
@@ -144,15 +150,42 @@ $$
 R(s,a,s')
 $$
 
+### State Rewards
+
+| Next Soil State | Reward |
+|---|---:|
+| Dry | -10 |
+| Moderate | +10 |
+| Wet | -3 |
+
+Action rewards
 
 
----
+| Action | Additional Reward |
+|---|---:|
+| No water | 0|
+| Small irrigation | -1 |
+| Large irrigation | -4 |
+
+The total reward is calculated as:
+
+R(s,a,s')=R_{\text{state}}(s')+R_{\text{action}}(a)
+
+
+For example, if the agent selects Small Irrigation and the next state becomes Moderate:
+
+R=10+(-1)=+9
+
+Positive rewards encourage suitable soil moisture, while negative rewards discourage dry soil, excessive moisture, and unnecessary water consumption.
+
+Discount factor
+
+gamma=0.90
+
+
+The discount factor encourages the agent to consider future soil conditions and rewards in addition to immediate rewards.
 
 ## Graphical Representation
-
-Write your answer here.
-
-Draw the MDP graph.
 
 The graph should include:
 
@@ -161,8 +194,39 @@ The graph should include:
 3. Rewards on transitions.
 4. Transition probabilities if applicable.
 
+The following diagram illustrates the MDP states and example transitions.
+```
+       +-------------------------+
+       |        DRY SOIL         |
+       |   Moisture below 30%    |
+       |       Reward: -10       |
+       +-------------------------+
+                  |
+                  | Small Irrigation
+                  | P(Moderate) = 0.65
+                  v
+       +-------------------------+
+       |     MODERATE SOIL       |
+       |    Moisture 30%-60%     |
+       |       Reward: +10       |
+       +-------------------------+
+                  |
+                  | Large Irrigation
+                  | May increase moisture
+                  v
+       +-------------------------+
+       |        WET SOIL         |
+       |   Moisture above 60%    |
+       |        Reward: -3       |
+       +-------------------------+
 
----
+       Available Actions:
+       1. No Water
+       2. Small Irrigation
+       3. Large Irrigation
+
+```
+The following diagram illustrates the MDP states and example transitions.
 
 ## Python Representation
 
@@ -173,21 +237,155 @@ Use Python dictionaries to represent the MDP.
 
 ```python
 # MDP Representation using Python
-# print("Name:       ")
-# print("Register Number:     ")
+# print("Name: S R NIVEDHITHA      ")
+# print("Register Number: 212225240102    ")
+states = ["Dry", "Moderate", "Wet"]
 
+actions = [
+    "No Water",
+    "Small Irrigation",
+    "Large Irrigation"
+]
+
+transitions = {
+    "Dry": {
+        "No Water": {
+            "Dry": 0.90, "Moderate": 0.10, "Wet": 0.00},
+        "Small Irrigation": {
+            "Dry": 0.30, "Moderate": 0.65, "Wet": 0.05},
+        "Large Irrigation": {
+            "Dry": 0.05, "Moderate": 0.35, "Wet": 0.60}
+    },
+    "Moderate": {
+        "No Water": {
+            "Dry": 0.30, "Moderate": 0.65, "Wet": 0.05},
+        "Small Irrigation": {
+            "Dry": 0.10, "Moderate": 0.70, "Wet": 0.20},
+        "Large Irrigation": {
+            "Dry": 0.05, "Moderate": 0.35, "Wet": 0.60}
+    },
+    "Wet": {
+        "No Water": {
+            "Dry": 0.10, "Moderate": 0.80, "Wet": 0.10},
+        "Small Irrigation": {
+            "Dry": 0.05, "Moderate": 0.60, "Wet": 0.35},
+        "Large Irrigation": {
+            "Dry": 0.00, "Moderate": 0.20, "Wet": 0.80}
+    }
+}
+
+state_rewards = {
+    "Dry": -10,
+    "Moderate": 10,
+    "Wet": -3
+}
+
+action_rewards = {
+    "No Water": 0,
+    "Small Irrigation": -1,
+    "Large Irrigation": -4
+}
+
+gamma = 0.90
+
+print("\nStates:", states)
+print("Actions:", actions)
+print("Discount Factor:", gamma)
+
+print("\nTransition Probability Validation:")
+
+for state in states:
+    for action in actions:
+        total = sum(transitions[state][action].values())
+        print(state, "-", action, "=", round(total, 2))
+        assert abs(total - 1.0) < 1e-9
+
+print("All transition probabilities are valid.")
+
+current_state = "Dry"
+selected_action = "Small Irrigation"
+
+print("\nSample Decision")
+print("Current State:", current_state)
+print("Selected Action:", selected_action)
+
+print("Next State Probabilities:",
+      transitions[current_state][selected_action])
+
+expected_reward = 0
+
+for next_state, probability in (
+    transitions[current_state][selected_action].items()
+):
+    reward = (
+        state_rewards[next_state]
+        + action_rewards[selected_action]
+    )
+    expected_reward += probability * reward
+
+print("Expected Immediate Reward:",
+      round(expected_reward, 2))
 ```
 ---
 ## Output
 
-Write your Python output here.
+The output of the above program will be:
+```
+Name: S R NIVEDHITHA
+Register Number: 212225240102
 
+States: ['Dry', 'Moderate', 'Wet']
+Actions: ['No Water', 'Small Irrigation', 'Large Irrigation']
+Discount Factor: 0.9
 
----
+Transition Probability Validation:
+Dry - No Water = 1.0
+Dry - Small Irrigation = 1.0
+Dry - Large Irrigation = 1.0
+Moderate - No Water = 1.0
+Moderate - Small Irrigation = 1.0
+Moderate - Large Irrigation = 1.0
+Wet - No Water = 1.0
+Wet - Small Irrigation = 1.0
+Wet - Large Irrigation = 1.0
+All transition probabilities are valid.
+
+Sample Decision
+Current State: Dry
+Selected Action: Small Irrigation
+Next State Probabilities: {'Dry': 0.3, 'Moderate': 0.65, 'Wet': 0.05}
+Expected Immediate Reward: 2.35
+```
+
+CALCULATIION
+
+For the current state `Dry` and action `Small Irrigation`:
+
+| Next State | Probability | Total Reward | Weighted Reward |
+|---|---:|---:|---:|
+| Dry | 0.30 | -10 - 1 = -11 | -3.30 |
+| Moderate | 0.65 | 10 - 1 = 9 | 5.85 |
+| Wet | 0.05 | -3 - 1 = -4 | -0.20 |
+
+Therefore, the expected immediate reward is:
+
+$$
+\begin{aligned}
+E[R] &= 0.30(-11) + 0.65(9) + 0.05(-4)\\
+&= -3.30 + 5.85 - 0.20\\
+&= \boxed{2.35}
+\end{aligned}
+$$
+
+The expected immediate reward is **2.35**.
 
 ## Result
 
-Write your result here.
+The real-world problem of an AI-Based Smart Irrigation System was successfully represented as a Markov Decision Process using Python. The state space, action space, transition probabilities, reward function, and discount factor were defined.
+
+The program validated all transition probabilities and calculated an expected immediate reward of 2.35 when the soil was Dry and the agent selected Small Irrigation.
+
+This experiment demonstrates how Reinforcement Learning can help optimize irrigation decisions, conserve water, maintain suitable soil moisture, and support healthy crop growth. Further algorithms, such as Q-learning, can be implemented to help the agent learn an effective irrigation policy through repeated interactions with the environment.
 
 
 
