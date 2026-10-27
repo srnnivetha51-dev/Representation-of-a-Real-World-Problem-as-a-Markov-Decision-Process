@@ -55,12 +55,7 @@ Discount factor: \(\gamma=0.90\), which gives importance to future rewards as we
 The state space represents all possible soil moisture conditions.
 
 ```
-S = {
-    Dry,
-    Moderate,
-    Wet,
-    ...
-}
+S = {Dry,Moderate,Wet,}
 
 ```
 ```
@@ -78,50 +73,41 @@ The states are explained below:
 3. Wet: The soil has high moisture, and additional irrigation may cause water wastage.
 
 ## Sample State
+Dry is a sample state. It means that the soil moisture is below 30%. The AI agent may choose to provide a small or large amount of water to improve the soil condition.
+## Action space
 
-Write your answer here.
-
-A sample state is one specific example from the state space.
+The action space represents all irrigation decisions available to the intelligent agent.
 
 
 
----
-
-## Action Space
-
-Write your answer here.
-
-The action space should list all possible actions available to the agent.
-
-Example format:
-
-```text
-A = {
-    Action 1,
-    Action 2,
-    Action 3,
-    ...
-}
+```
+A = {No Water, Small Irrigation, Large Irrigation}
 ```
 
 
----
+```
+actions = [
+    "No Water",
+    "Small Irrigation",
+    "Large Irrigation"
+]
+```
+The actions are explained below:
+1. No Water: Keep the irrigation system switched off.
+2. Small Irrigation: Supply a small quantity of water to the crops.
+3. Large Irrigation: Supply a larger quantity of water to increase soil moisture quickly.
 
 ## Sample Action
 
-Write your answer here.
-
-A sample action is one action selected from the action space.
+When the current state is Dry, the agent may select Small Irrigation to increase soil moisture while avoiding unnecessary water consumption.
 
 
-
----
 
 ## Transition Probability
 
-Write your answer here.
 
-The transition probability explains how the environment moves from one state to another after an action is taken.
+
+It represents the probability of reaching the next soil moisture state \(s'\) after taking action \(a\) in the current state \(s\).
 
 General form:
 
@@ -133,8 +119,18 @@ This means:
 
 > Probability of reaching next state $s'$ after taking action $a$ in current state $s$.
 
+Current State	Action	Next Dry	Next Moderate	Next Wet
+Dry	No Water	0.90	0.10	0.00
+Dry	Small Irrigation	0.30	0.65	0.05
+Dry	Large Irrigation	0.05	0.35	0.60
+Moderate	No Water	0.30	0.65	0.05
+Moderate	Small Irrigation	0.10	0.70	0.20
+Moderate	Large Irrigation	0.05	0.35	0.60
+Wet	No Water	0.10	0.80	0.10
+Wet	Small Irrigation	0.05	0.60	0.35
+Wet	Large Irrigation	0.00	0.20	0.80
 
----
+
 
 ## Reward Function
 
