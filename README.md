@@ -239,92 +239,92 @@ Use Python dictionaries to represent the MDP.
 # MDP Representation using Python
 # print("Name: S R NIVEDHITHA      ")
 # print("Register Number: 212225240102    ")
-states = ["Dry", "Moderate", "Wet"]
 
-actions = [
-    "No Water",
-    "Small Irrigation",
-    "Large Irrigation"
-]
+states = {
+    "S1": "Dry",
+    "S2": "Moderate",
+    "S3": "Wet"
+}
+
+actions = {
+    "A1": "No Water",
+    "A2": "Small Irrigation",
+    "A3": "Large Irrigation"
+}
 
 transitions = {
-    "Dry": {
-        "No Water": {
-            "Dry": 0.90, "Moderate": 0.10, "Wet": 0.00},
-        "Small Irrigation": {
-            "Dry": 0.30, "Moderate": 0.65, "Wet": 0.05},
-        "Large Irrigation": {
-            "Dry": 0.05, "Moderate": 0.35, "Wet": 0.60}
-    },
-    "Moderate": {
-        "No Water": {
-            "Dry": 0.30, "Moderate": 0.65, "Wet": 0.05},
-        "Small Irrigation": {
-            "Dry": 0.10, "Moderate": 0.70, "Wet": 0.20},
-        "Large Irrigation": {
-            "Dry": 0.05, "Moderate": 0.35, "Wet": 0.60}
-    },
-    "Wet": {
-        "No Water": {
-            "Dry": 0.10, "Moderate": 0.80, "Wet": 0.10},
-        "Small Irrigation": {
-            "Dry": 0.05, "Moderate": 0.60, "Wet": 0.35},
-        "Large Irrigation": {
-            "Dry": 0.00, "Moderate": 0.20, "Wet": 0.80}
-    }
+    ("S1", "A1"): {"S1": 0.90, "S2": 0.10, "S3": 0.00},
+    ("S1", "A2"): {"S1": 0.30, "S2": 0.65, "S3": 0.05},
+    ("S1", "A3"): {"S1": 0.05, "S2": 0.35, "S3": 0.60},
+
+    ("S2", "A1"): {"S1": 0.30, "S2": 0.65, "S3": 0.05},
+    ("S2", "A2"): {"S1": 0.10, "S2": 0.70, "S3": 0.20},
+    ("S2", "A3"): {"S1": 0.05, "S2": 0.35, "S3": 0.60},
+
+    ("S3", "A1"): {"S1": 0.10, "S2": 0.80, "S3": 0.10},
+    ("S3", "A2"): {"S1": 0.05, "S2": 0.60, "S3": 0.35},
+    ("S3", "A3"): {"S1": 0.00, "S2": 0.20, "S3": 0.80}
 }
 
 state_rewards = {
-    "Dry": -10,
-    "Moderate": 10,
-    "Wet": -3
+    "S1": -10,
+    "S2": 10,
+    "S3": -3
 }
 
 action_rewards = {
-    "No Water": 0,
-    "Small Irrigation": -1,
-    "Large Irrigation": -4
+    "A1": 0,
+    "A2": -1,
+    "A3": -4
 }
 
 gamma = 0.90
 
-print("\nStates:", states)
-print("Actions:", actions)
-print("Discount Factor:", gamma)
+print("\n--- SMART IRRIGATION MDP DETAILS ---")
+print(f"{'State':<12} {'Action':<20} {'Next State':<12} {'Probability':<12} {'Total Reward':<12}")
 
-print("\nTransition Probability Validation:")
+for (state, action), next_states in transitions.items():
+    for next_state, probability in next_states.items():
+        if probability > 0:
+            reward = state_rewards[next_state] + action_rewards[action]
 
-for state in states:
-    for action in actions:
-        total = sum(transitions[state][action].values())
-        print(state, "-", action, "=", round(total, 2))
-        assert abs(total - 1.0) < 1e-9
+            print(
+                f"{states[state]:<12} "
+                f"{actions[action]:<20} "
+                f"{states[next_state]:<12} "
+                f"{probability:<12.2f} "
+                f"{reward:<12}"
+            )
 
-print("All transition probabilities are valid.")
+print("\nDiscount Factor (Gamma):", gamma)
 
-current_state = "Dry"
-selected_action = "Small Irrigation"
+print("\n--- EXPECTED IMMEDIATE REWARD ---")
 
-print("\nSample Decision")
-print("Current State:", current_state)
-print("Selected Action:", selected_action)
+current_state = "S1"
+selected_action = "A2"
 
-print("Next State Probabilities:",
-      transitions[current_state][selected_action])
+print("Current State:", states[current_state])
+print("Selected Action:", actions[selected_action])
 
 expected_reward = 0
 
-for next_state, probability in (
-    transitions[current_state][selected_action].items()
-):
-    reward = (
-        state_rewards[next_state]
-        + action_rewards[selected_action]
-    )
-    expected_reward += probability * reward
+print(f"\n{'Next State':<12} {'Probability':<12} {'Total Reward':<15} {'Weighted Reward':<15}")
 
-print("Expected Immediate Reward:",
-      round(expected_reward, 2))
+for next_state, probability in transitions[(current_state, selected_action)].items():
+    reward = state_rewards[next_state] + action_rewards[selected_action]
+    weighted_reward = probability * reward
+    expected_reward += weighted_reward
+
+    print(
+        f"{states[next_state]:<12} "
+        f"{probability:<12.2f} "
+        f"{reward:<15} "
+        f"{weighted_reward:<15.2f}"
+    )
+
+print("\nExpected Immediate Reward:", round(expected_reward, 2))
+print("Future rewards are discounted using Gamma =", gamma)
+     
 ```
 ---
 ## Output
@@ -334,28 +334,51 @@ The output of the above program will be:
 Name: S R NIVEDHITHA
 Register Number: 212225240102
 
-States: ['Dry', 'Moderate', 'Wet']
-Actions: ['No Water', 'Small Irrigation', 'Large Irrigation']
-Discount Factor: 0.9
+--- SMART IRRIGATION MDP DETAILS ---
+State        Action               Next State   Probability  Total Reward
+Dry          No Water             Dry          0.90         -10         
+Dry          No Water             Moderate     0.10         10          
+Dry          Small Irrigation     Dry          0.30         -11         
+Dry          Small Irrigation     Moderate     0.65         9           
+Dry          Small Irrigation     Wet          0.05         -4          
+Dry          Large Irrigation     Dry          0.05         -14         
+Dry          Large Irrigation     Moderate     0.35         6           
+Dry          Large Irrigation     Wet          0.60         -7          
+Moderate     No Water             Dry          0.30         -10         
+Moderate     No Water             Moderate     0.65         10          
+Moderate     No Water             Wet          0.05         -3          
+Moderate     Small Irrigation     Dry          0.10         -11         
+Moderate     Small Irrigation     Moderate     0.70         9           
+Moderate     Small Irrigation     Wet          0.20         -4          
+Moderate     Large Irrigation     Dry          0.05         -14         
+Moderate     Large Irrigation     Moderate     0.35         6           
+Moderate     Large Irrigation     Wet          0.60         -7          
+Wet          No Water             Dry          0.10         -10         
+Wet          No Water             Moderate     0.80         10          
+Wet          No Water             Wet          0.10         -3          
+Wet          Small Irrigation     Dry          0.05         -11         
+Wet          Small Irrigation     Moderate     0.60         9           
+Wet          Small Irrigation     Wet          0.35         -4          
+Wet          Large Irrigation     Moderate     0.20         6           
+Wet          Large Irrigation     Wet          0.80         -7          
 
-Transition Probability Validation:
-Dry - No Water = 1.0
-Dry - Small Irrigation = 1.0
-Dry - Large Irrigation = 1.0
-Moderate - No Water = 1.0
-Moderate - Small Irrigation = 1.0
-Moderate - Large Irrigation = 1.0
-Wet - No Water = 1.0
-Wet - Small Irrigation = 1.0
-Wet - Large Irrigation = 1.0
-All transition probabilities are valid.
+Discount Factor (Gamma): 0.9
 
-Sample Decision
+--- EXPECTED IMMEDIATE REWARD ---
 Current State: Dry
 Selected Action: Small Irrigation
-Next State Probabilities: {'Dry': 0.3, 'Moderate': 0.65, 'Wet': 0.05}
+
+Next State   Probability  Total Reward    Weighted Reward
+Dry          0.30         -11             -3.30          
+Moderate     0.65         9               5.85           
+Wet          0.05         -4              -0.20          
+
 Expected Immediate Reward: 2.35
+Future rewards are discounted using Gamma = 0.9
+
+​
 ```
+<img width="206" height="288" alt="image" src="https://github.com/user-attachments/assets/1dabfbff-c2b0-474b-9fbc-1f2a0bfd67dc" />
 
 CALCULATIION
 
@@ -390,4 +413,24 @@ This experiment demonstrates how Reinforcement Learning can help optimize irriga
 
 
 ---
+INTEFERENCES
+Inferences – Smart Irrigation System
+1. The Smart Irrigation System represents the real-world problem of maintaining proper soil moisture using a Markov Decision Process (MDP).
 
+2. The system has three states: Dry, Moderate, and Wet, representing different soil moisture conditions.
+
+3. The system has three actions: No Water, Small Irrigation, and Large Irrigation to control soil moisture.
+
+4. Transition probabilities describe the likelihood of the soil moving from one moisture state to another after an irrigation action.
+
+5. The Moderate state provides a positive reward of +10, indicating the ideal soil moisture condition.
+
+6. The Dry state gives a reward of -10, while the Wet state gives a reward of -3, discouraging unsuitable soil moisture conditions.
+
+7. For the current state Dry and action Small Irrigation, the expected immediate reward is 2.35.
+
+8. The discount factor γ = 0.90 indicates that future rewards are considered, with less weight given to rewards further in the future.
+
+9. The MDP model helps the irrigation system choose suitable actions to maintain soil moisture and reduce unnecessary water usage.
+
+10. Therefore, the Smart Irrigation System demonstrates how MDP can support intelligent and efficient water management in agriculture.
